@@ -9,7 +9,7 @@ import SearchMilestonePlanner from '../Components/SearchMilestonePlanner.jsx';
 import viewicon from '../assets/viewicon.svg'
 
 const Planner = () => {
-    const [modalOpen, setModalOpen] = useState(false);
+    const [MilestonePlannermodalOpen, setMilestonePlannermodalOpen] = useState(false);
     const [userRoadmaps, setUserRoadmaps] = useState([]);
     const [viewModalOpen, setViewModalOpen] = useState(false);
     const [selectedRoadmap, setSelectedRoadmap] = useState(null);
@@ -19,13 +19,13 @@ const Planner = () => {
     const [searchSelectedRoadmap, setSearchSelectedRoadmap] = useState(null);
 
     useEffect(() => {
-        // Load user-created roadmaps from localStorage on mount and when modal closes
+    
         const stored = JSON.parse(localStorage.getItem('userRoadmaps') || '[]');
         setUserRoadmaps(stored);
-    }, [modalOpen]);
+    }, [MilestonePlannermodalOpen]);
 
-    const openModal = () => setModalOpen(true);
-    const closeModal = () => setModalOpen(false);
+    const openModal = () => setMilestonePlannermodalOpen(true);
+    const closeModal = () => setMilestonePlannermodalOpen(false);
 
     const openViewModal = (roadmap) => {
         setSelectedRoadmap(roadmap);
@@ -79,7 +79,7 @@ const Planner = () => {
     return (
         <div>
             {/* Render modal when modalOpen is true */}
-            {modalOpen && <MilestoneModal onClose={closeModal} />}
+            {MilestonePlannermodalOpen && <MilestoneModal onClose={closeModal} />}
             {/* Render ViewRoadmapModal when viewModalOpen is true */}
             {viewModalOpen && selectedRoadmap && (
                 <ViewRoadmapModal
