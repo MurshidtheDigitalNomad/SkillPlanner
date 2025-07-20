@@ -29,6 +29,7 @@ const SearchMilestonePlanner = ({ roadmap, onClose }) => {
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+
             <div className="bg-white rounded-2xl shadow-lg p-12 w-[700px] max-w-full border border-black relative max-h-[90vh] overflow-y-auto flex flex-col items-center">
                 <input
                     className="text-xl font-extrabold font-rubik text-center text-[#2d39e8] font-poppins mb-2 tracking-wide w-full outline-none border-b-2 border-[#2d39e8] bg-transparent placeholder-[#2d39e8]"
@@ -38,6 +39,7 @@ const SearchMilestonePlanner = ({ roadmap, onClose }) => {
                     onChange={e => setSkill(e.target.value)}
                 />
                 <div> <img src={milestonemessage} /></div>
+
                 <div className="bg-[#f8fcff] rounded-xl w-full px-8 py-10 flex flex-col items-center gap-2">
                     {milestones.map((milestone, idx) => (
                         <div key={idx} className="w-full mb-8 last:mb-0">
@@ -85,6 +87,7 @@ const SearchMilestonePlanner = ({ roadmap, onClose }) => {
                         </div>
                     ))}
                 </div>
+
                 <div className="flex w-full justify-between mt-8 gap-4">
                     <button className="bg-red-400 hover:bg-red-500 text-white text-xs font-rubik font-bold py-2 px-4 rounded" onClick={onClose}>GO BACK</button>
                     <button className="bg-[#2d39e8] hover:bg-blue-800 text-white font-rubik text-xs font-bold py-2 px-4 rounded" onClick={addMilestone}>ADD ANOTHER MILESTONE</button>

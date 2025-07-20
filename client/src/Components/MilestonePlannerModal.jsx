@@ -23,8 +23,8 @@ const MilestonePlannerModal = ({ onClose }) => {
 
     
     const handleStartLearning = () => {
-        // Save the new roadmap (skill + milestones) to localStorage
-        if (!skill.trim()) return; // Optionally prevent empty skill
+        //getting roadmaps from localstorage
+        if (!skill.trim()) return; 
         const userRoadmaps = JSON.parse(localStorage.getItem('userRoadmaps') || '[]');
         userRoadmaps.push({ skill, milestones });
         localStorage.setItem('userRoadmaps', JSON.stringify(userRoadmaps));
@@ -42,6 +42,7 @@ const MilestonePlannerModal = ({ onClose }) => {
                     onChange={e => setSkill(e.target.value)}
                 />
                 <div> <img src={milestonemessage} /></div>
+
                 <div className="bg-[#f8fcff] rounded-xl w-full px-8 py-10 flex flex-col items-center gap-2">
                     
                     {milestones.map((milestone, idx) => (
@@ -93,6 +94,7 @@ const MilestonePlannerModal = ({ onClose }) => {
                         </div>
                     ))}
                 </div>
+                
                 <div className="flex w-full justify-between mt-8 gap-4">
                     <button className="bg-red-400 hover:bg-red-500 text-white text-xs font-rubik font-bold py-2 px-4 rounded" onClick={onClose}>GO BACK</button>
                     <button className="bg-[#2d39e8] hover:bg-blue-800 text-white font-rubik text-xs font-bold py-2 px-4 rounded" onClick={addMilestone}>ADD ANOTHER MILESTONE</button>

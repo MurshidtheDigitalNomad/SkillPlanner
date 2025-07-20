@@ -13,14 +13,16 @@ const Homepage = () => {
             <div className=" w-[85vw] flex flex-col ">
                
                 <div className="shortcuts flex flex-col gap-8 mr-10 w-full">
-                    {/* Top Row: ProgressShortcut & TaskViewer (50-50) */}
+                  
                     <div className="flex gap-8 w-full">
+
                         <div className="bg-white rounded-xl shadow flex-1 h-80 flex flex-col">
                             <div className="flex items-center gap-2 font-rubik text-xl font-extrabold mt-5 ml-5">
                                 <img src={progresstracker} className="w-10 h-10" alt="progress tracker"/>
                                 <span>YOUR CURRENT PROGRESS</span>
                             </div>
                         </div>
+
                         <div className="bg-white rounded-xl shadow flex-1 h-80 flex flex-col">
                             <div className="flex items-center gap-2 font-rubik text-xl font-extrabold mt-5 ml-5">
                                 <img src={taskviewer} className="w-10 h-10"/>
@@ -28,8 +30,10 @@ const Homepage = () => {
                             </div>
                         </div>
                     </div>
-                    {/* Bottom Row: ResourceShortcut (35%) & CommunityShortcut (65%) */}
+
+                  
                     <div className="flex gap-8 w-full">
+
                         <div className="bg-white rounded-xl shadow" style={{width: '35%'}}>
                             <div className="h-80 flex flex-col">
                                 <div className="flex items-center gap-2 font-rubik text-xl font-extrabold mt-5 ml-5">
@@ -38,6 +42,7 @@ const Homepage = () => {
                                 </div>
                             </div>
                         </div>
+
                         <div className="bg-white rounded-xl shadow" style={{width: '65%'}}>
                             <div className="h-80 flex flex-col ">
                                 <div className="flex items-center gap-2 font-rubik text-xl font-extrabold mt-5 ml-5">
@@ -46,6 +51,7 @@ const Homepage = () => {
                                 </div>
                             </div>
                         </div>
+                        
                     </div>
                 </div>
             </div>

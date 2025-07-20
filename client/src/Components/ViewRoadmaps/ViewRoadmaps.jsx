@@ -14,7 +14,7 @@ const ViewRoadmapModal = ({ roadmap, onClose, onDelete }) => {
         );
         localStorage.setItem('userRoadmaps', JSON.stringify(filtered));
         if (onDelete) onDelete(roadmap);
-        setTimeout(onClose, 500); // 0.5s delay for effect
+        setTimeout(onClose, 500); // roadmap deleted after 0.5 seconds
     };
 
     return (

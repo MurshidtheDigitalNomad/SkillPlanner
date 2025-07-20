@@ -51,7 +51,7 @@ const Planner = () => {
         );
     };
 
-    // Search logic
+
     const handleSearchChange = (e) => {
         const value = e.target.value;
         setSearch(value);
@@ -78,9 +78,9 @@ const Planner = () => {
 
     return (
         <div>
-            {/* Render modal when modalOpen is true */}
+            {/* Rendering MileStonePlanner modal when modalOpen is true */}
             {MilestonePlannermodalOpen && <MilestoneModal onClose={closeModal} />}
-            {/* Render ViewRoadmapModal when viewModalOpen is true */}
+            {/* Rendering ViewRoadmapModal when viewModalOpen is true */}
             {viewModalOpen && selectedRoadmap && (
                 <ViewRoadmapModal
                     roadmap={selectedRoadmap}
@@ -88,7 +88,7 @@ const Planner = () => {
                     onDelete={handleDeleteRoadmap}
                 />
             )}
-            {/* Render SearchMilestonePlanner modal when searchModalOpen is true */}
+            {/* Rendering SearchMilestonePlanner modal when searchModalOpen is true */}
             {searchModalOpen && searchSelectedRoadmap && (
                 <SearchMilestonePlanner roadmap={searchSelectedRoadmap} onClose={closeSearchModal} />
             )}

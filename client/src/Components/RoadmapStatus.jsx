@@ -27,11 +27,13 @@ const RoadmapStatus = ({ progressUpdated }) => {
     return (
         <div className="w-full h-full border-2 border-black rounded-2xl p-6 flex flex-col items-center justify-start gap-6">
             <h2 className="text-xl font-extrabold font-rubik text-center mb-2">STATUS OF YOUR ROADMAPS</h2>
+
             <div className="flex items-center w-full mb-4">
                 <span className="text-blue-500 text-2xl mr-2">✔️</span>
                 <span className="font-extrabold text-lg font-rubik mr-2">COMPLETED ROADMAPS</span>
                 <span className="font-extrabold text-lg font-rubik ml-auto">{completedCount}</span>
             </div>
+
             <div className="w-full flex flex-col gap-4">
                 {roadmaps.map((rm, idx) => {
                     const progress = progresses[idx] || { percent: 0 };
@@ -45,6 +47,7 @@ const RoadmapStatus = ({ progressUpdated }) => {
                     );
                 })}
             </div>
+            
         </div>
     );
 };
