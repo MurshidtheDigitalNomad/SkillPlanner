@@ -38,19 +38,19 @@ const Tracker = () => {
         setSelectedSkill(null);
     };
 
-    // Only keep displayedTasks and its logic
+    //keeping displayedTasks and its logic
     const [displayedTasks, setDisplayedTasks] = useState([]);
     const [checked, setChecked] = useState({});
     const handleCheck = (key) => setChecked(prev => ({ ...prev, [key]: !prev[key] }));
 
-    // For deleting tasks from the displayed random list (not from localStorage)
+    //deleting tasks from the displayed random list (not from localStorage)
     
     const handleDeleteTask = (key) => {
         setDisplayedTasks(prev => prev.filter(task => task.key !== key));
     };
 
     const handleAddTask = (task) => {
-        // Add the new task to the displayedTasks list
+        // Adding new tasks to the Task list
         setDisplayedTasks(prev => [
             ...prev,
             {

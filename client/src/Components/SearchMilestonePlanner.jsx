@@ -63,7 +63,7 @@ const SearchMilestonePlanner = ({ roadmap, onClose }) => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-poppins font-semibold mb-1">Tasks (optional)</label>
+                                    <label className="block text-xs font-poppins font-semibold mb-1">Tasks (Each task should be separated by a comma)</label>
                                     <textarea
                                         className="w-full border font-poppins border-gray-400 rounded px-2 py-1 min-h-[80px] text-sm resize-y"
                                         placeholder="Tasks"

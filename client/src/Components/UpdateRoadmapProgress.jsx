@@ -9,7 +9,7 @@ const UpdateRoadmapProgress = ({ roadmapSkill }) => {
         const userRoadmaps = JSON.parse(localStorage.getItem('userRoadmaps') || '[]');
         const found = userRoadmaps.find(rm => rm.skill === roadmapSkill);
         setRoadmap(found || null);
-        // Load progress from localStorage if exists
+        // saving and loading progress from localStorage if exists
         const progress = JSON.parse(localStorage.getItem(`progress_${roadmapSkill}`) || '{}');
         setTaskCompletion(progress.taskCompletion || {});
         setMilestoneCompletion(progress.milestoneCompletion || {});
@@ -51,7 +51,7 @@ const UpdateRoadmapProgress = ({ roadmapSkill }) => {
         <div className="text-center text-gray-500">No roadmap found.</div>
     );
 
-    // Count completed tasks and milestones
+    // Count of completed tasks and milestones
     let completedTasks = 0;
     let totalTasks = 0;
     let completedMilestones = 0;
