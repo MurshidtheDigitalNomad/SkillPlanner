@@ -8,7 +8,7 @@ import {Link} from 'react-router-dom';
 const Navbar = () => {
     return (
         <div className="w-full h-[15vh] flex items-center justify-between px-6" style={{ background: 'linear-gradient(to right, #85b4fa, #e8f2f8)' }}>
-            <Link to="/">
+            <Link to="/dashboard">
             <img src={titlename} alt="skillplanner-title" className="h-15 w-15" />
             </Link>
             <div className="flex items-center gap-4">

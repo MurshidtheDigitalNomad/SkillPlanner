@@ -6,7 +6,7 @@ import taskviewer from "../assets/taskviewer.svg"
 import progresstracker from "../assets/progress-tracker.svg"
 import communityshortcut from "../assets/communityshortcut.svg"
 
-const Homepage = () => {
+const Dashboard = () => {
     return (
         <div className="flex min-h-screen w-full">
             
@@ -59,4 +59,4 @@ const Homepage = () => {
     );
 }
 
-export default Homepage;
+export default Dashboard;

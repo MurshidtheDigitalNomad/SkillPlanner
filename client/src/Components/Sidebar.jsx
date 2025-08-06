@@ -17,7 +17,7 @@ const Sidebar = () => {
             </div>
             
             <div className="flex flex-col items-center gap-8 mt-10 w-full">
-                <div className="w-12 h-12 "><Link to='/'><img src={dashboard}/></Link></div> 
+                <div className="w-12 h-12 "><Link to='/dashboard'><img src={dashboard}/></Link></div> 
                 <div className="w-12 h-12 "><Link to='/planner'><img src={planner}/></Link></div> 
                 <div className="w-12 h-12 "><Link to="/tracker"><img src={tracker}/></Link></div> 
                 <div className="w-12 h-12 "><button><img src={resourcehub}/></button></div> 
