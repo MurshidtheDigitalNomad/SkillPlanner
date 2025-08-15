@@ -9,6 +9,7 @@ import resourcehub  from "../assets/resourcehub.svg"
 import {Link} from 'react-router-dom';
 
 const Sidebar = () => {
+
     return (
         <div className="h-screen bg-white shadow flex flex-col items-center pt-0 z-40">
             
@@ -17,10 +18,10 @@ const Sidebar = () => {
             </div>
             
             <div className="flex flex-col items-center gap-8 mt-10 w-full">
-                <div className="w-12 h-12 "><Link to='/dashboard'><img src={dashboard}/></Link></div> 
+                <div className="w-12 h-12 "><Link to={`/dashboard`}><img src={dashboard}/></Link></div> 
                 <div className="w-12 h-12 "><Link to='/planner'><img src={planner}/></Link></div> 
                 <div className="w-12 h-12 "><Link to="/tracker"><img src={tracker}/></Link></div> 
-                <div className="w-12 h-12 "><button><img src={resourcehub}/></button></div> 
+                <div className="w-12 h-12 "><Link to='/resourcehub'><button><img src={resourcehub}/></button></Link></div> 
                 <div className="w-12 h-12 "><button><img src={community}/></button></div> 
                 <div className="w-12 h-12 "><button><img src={aimentor}/></button></div> 
             </div>

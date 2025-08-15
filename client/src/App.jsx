@@ -6,7 +6,8 @@ import HomePage from './Components/HomePage/HomePage';
 import Planner from "./routes/planner.route";
 import Tracker from "./routes/tracker.route";
 import SignIn from "./Components/SignIn";
-// import ResourceHub from "./routes/resourcehub.route";
+import SignUp from "./Components/SignUp";
+import ResourceHub from "./routes/ResourceHub.route";
 // import Community from "./routes/community.route";
 // import Aimentor from "./routes/aimentor.route";
 
@@ -15,14 +16,15 @@ function App() {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="signin" element={<SignIn />} />
+      <Route path="signup" element={<SignUp />} />
       <Route element={<DashboardLayout />}>
         <Route path="/dashboard" element={<Dashboard />} />
        
         <Route path="/planner" element={<Planner />} />
         <Route path="/tracker" element={<Tracker />} />
-        {/* <Route path="/resourcehub" element={<ResourceHub />} />
-        <Route path="/community" element={<Community />} />
-        <Route path="/aimentor" element={<Aimentor />} /> */}
+        <Route path="/resourcehub" element={<ResourceHub />} />
+        {/* <Route path="/community" element={<Community />} />
+        <Route path="/aimentor" element={<Aimentor />} /> */} 
       </Route>
     </Routes>
  

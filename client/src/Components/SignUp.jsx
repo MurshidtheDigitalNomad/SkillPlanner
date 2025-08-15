@@ -1,19 +1,23 @@
 import { useState, useEffect } from "react";
 import tracker from '../assets/tracker.svg'
-import {Link, useNavigate} from 'react-router-dom';
+import {Link} from 'react-router-dom';
 import axios from 'axios';
-import {useAuth} from './Contexts/authContext.jsx';
+import { useNavigate } from "react-router-dom";
 
-function SignIn() {
+function SignUp() {
   const sentences = ["Plan. Track. Grow.","Build your own roadmap.","Master your skills with AI."];
   const navigate = useNavigate();
-  const { login } = useAuth();
 
   const [sentenceIndex, setSentenceIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
   const [displayedText, setDisplayedText] = useState("");
   const [isTyping, setIsTyping] = useState(true);
-  const [signInData, setSignInData] = useState({ email: "", password: "" });
+  const [userData, setUserData]= useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  })
 
   // Typing effect logic
   useEffect(() => {
@@ -44,28 +48,32 @@ function SignIn() {
   }, [charIndex, isTyping, sentenceIndex]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setSignInData((prev) => ({ ...prev, [name]: value }));
-  };
+    setUserData({ ...userData, [e.target.name]: e.target.value });
+  }
 
-  const handleSignIn = async (e) => {
+  const handleSignUp = async (e) =>{
     e.preventDefault();
-    try {
-      const response = await axios.post('http://localhost:8000/api/users/signin', signInData);
-      if (response.status == 200) {
-        alert("Sign in successful!");
-        console.log("User data:", response.data.user);
-        // Store user data in local storage for context
+
+    if(userData.password !== userData.confirmPassword){
+      alert("Passwords do not match, please try again.");
+      return;
+    }
+    try{
+      const response = await axios.post('http://localhost:8000/api/users/signup', userData);
+      console.log(response.data);
+      if(response.status==201){
+        alert("Sign up successful!");
         localStorage.setItem("user", JSON.stringify(response.data.user));
-        login(response.data.user);
-        navigate('/dashboard');
-      } else {
-        alert("Sign in failed, please try again.");
+        navigate(`/dashboard`);
+      }else{
+        alert("Sign up failed. Please try again.");
       }
     } catch (error) {
-      console.log("Error signing in:", error);
-      alert("Sign in failed, please check your credentials.");
+      console.error("Error signing up:", error);
+      alert("An error occurred during sign up. Please try again.");
     }
+     
+
   }
 
   return (
@@ -86,39 +94,58 @@ function SignIn() {
 
     
       <div className="w-1/2 flex flex-col justify-center items-center px-10">
-        <h2 className="text-3xl font-semibold font-rubik mb-8">Sign In to your account</h2>
+        <h2 className="text-3xl font-semibold font-rubik mb-8">Set up your SkillPlanner account</h2>
 
-        <form className="w-full max-w-sm space-y-4" onSubmit={handleSignIn}>
+        <form className="w-full max-w-sm space-y-4" onSubmit={handleSignUp}>
+          <input
+            type="text"
+            placeholder="Enter your full name"
+            className="w-full p-3 font-poppins border border-gray-300 rounded-xl focus:outline-none"
+            name="name"
+            value={userData.name}
+            onChange={handleChange}
+          />
+
           <input
             type="email"
-            placeholder="Email"
-            name="email"
-            value={signInData.email}
-            onChange={handleChange}
+            placeholder="Enter your Email Address"
             className="w-full p-3 font-poppins border border-gray-300 rounded-xl focus:outline-none"
+            name="email"
+            value={userData.email}
+            onChange={handleChange}
           />
+
           <input
             type="password"
-            placeholder="Password"
-            name="password"
-            value={signInData.password}
-            onChange={handleChange}
+            placeholder=" Create a unique password"
             className="w-full p-3 font-poppins border border-gray-300 rounded-xl focus:outline-none"
+            name="password"
+            value={userData.password}
+            onChange={handleChange}
           />
-          <p className="mt-2 font-poppins text-sm">Forget password? <Link to='/reset-password' className="text-[#2d39e8]">Click here to rest your password</Link></p>
 
-          <button 
-          className="bg-[#2d39e8] hover:bg-blue-800 text-white font-rubik text-xl font-bold mt-4 py-2 px-4 rounded w-full"
-          type='submit'
+          <input
+            type="password"
+            placeholder="Confirm your password"
+            className="w-full p-3 font-poppins border border-gray-300 rounded-xl focus:outline-none"
+            name="confirmPassword"
+            value={userData.confirmPassword}
+            onChange={handleChange}
+          />
+
+          <p className="mt-2 font-poppins  text-sm">Already have an account? <Link to='/signin' className="text-[#2d39e8]">Sign back in</Link></p>
+          <button
+            className="bg-[#2d39e8] hover:bg-blue-800 text-white font-rubik text-xl font-bold mt-4 py-2 px-4 rounded w-full"
+            type="submit"
           >
-            Login
+            Sign Up
           </button>
-          
+                  
         </form>
-        <p className="mt-2 font-poppins ">Don't have an account? <Link to='/signup' className="text-[#2d39e8]">Sign Up</Link></p>
+
       </div>
     </div>
   );
 }
 
-export default SignIn;
+export default SignUp;
