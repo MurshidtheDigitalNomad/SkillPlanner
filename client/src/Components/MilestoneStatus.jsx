@@ -1,23 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
-const getMilestoneStats = (roadmap) => {
-    const progress = JSON.parse(localStorage.getItem(`progress_${roadmap.skill}`) || '{}');
-    const { milestoneCompletion = {} } = progress;
-    const total = roadmap.milestones.length;
-    const completed = Object.values(milestoneCompletion).filter(Boolean).length;
-    const remaining = total - completed;
-    return { completed, remaining };
-};
+const MilestoneStatus = ({ userProgress }) => {
+    if (!userProgress) {
+        return (
+            <div className="w-full h-full flex flex-col items-center justify-start gap-4">
+                <h2 className={'text-xl font-extrabold mt-4 font-rubik text-center mb-2'}>STATUS OF YOUR MILESTONE GOALS</h2>
+                <div className="text-gray-500">Loading progress...</div>
+            </div>
+        );
+    }
 
-const MilestoneStatus = () => {
-    const [roadmaps, setRoadmaps] = useState([]);
-    const [stats, setStats] = useState([]);
-
-    useEffect(() => {
-        const stored = JSON.parse(localStorage.getItem('userRoadmaps') || '[]');
-        setRoadmaps(stored);
-        setStats(stored.map(rm => getMilestoneStats(rm)));
-    }, []);
+    const { roadmaps: progressData, overall } = userProgress;
 
     return (
         <div className="w-full h-full flex flex-col items-center justify-start gap-4">
@@ -30,13 +23,38 @@ const MilestoneStatus = () => {
             </div>
 
             <div className="w-full flex flex-col items-center">
-                {roadmaps.map((rm, idx) => (
-                    <div key={rm.skill} className="grid grid-cols-3 w-[600px] border-2 border-black rounded-none mb-1">
-                        <div className="col-span-1 flex items-center justify-center font-extrabold text-sm font-rubik py-1 border-r-2 border-black text-center">{rm.skill}</div>
-                        <div className="col-span-1 flex items-center justify-center font-extrabold text-sm font-rubik py-1 border-r-2 border-black text-center">{stats[idx]?.completed ?? 0}</div>
-                        <div className="col-span-1 flex items-center justify-center font-extrabold text-sm font-rubik py-1 text-center">{stats[idx]?.remaining ?? 0}</div>
+                {progressData.map((roadmap, idx) => {
+                    const completed = roadmap.milestones.completed;
+                    const remaining = roadmap.milestones.total - completed;
+                    return (
+                        <div key={roadmap.roadmap_id || idx} className="grid grid-cols-3 w-[600px] border-2 border-black rounded-none mb-1">
+                            <div className="col-span-1 flex items-center justify-center font-extrabold text-sm font-rubik py-1 border-r-2 border-black text-center">
+                                {roadmap.roadmap_name || roadmap.roadmap_id}
+                            </div>
+                            <div className="col-span-1 flex items-center justify-center font-extrabold text-sm font-rubik py-1 border-r-2 border-black text-center">
+                                {completed}
+                            </div>
+                            <div className="col-span-1 flex items-center justify-center font-extrabold text-sm font-rubik py-1 text-center">
+                                {remaining}
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+            
+            {/* Overall Summary */}
+            <div className="w-full flex flex-col items-center mt-4">
+                <div className="grid grid-cols-3 w-[600px] border-2 border-black rounded-lg mb-1 bg-blue-100">
+                    <div className="col-span-1 flex items-center justify-center font-extrabold text-sm font-rubik py-2 border-r-2 border-black text-center">
+                        TOTAL
                     </div>
-                ))}
+                    <div className="col-span-1 flex items-center justify-center font-extrabold text-sm font-rubik py-2 border-r-2 border-black text-center">
+                        {overall.completed_milestones}
+                    </div>
+                    <div className="col-span-1 flex items-center justify-center font-extrabold text-sm font-rubik py-2 text-center">
+                        {overall.total_milestones - overall.completed_milestones}
+                    </div>
+                </div>
             </div>
             
         </div>

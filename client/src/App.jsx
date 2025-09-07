@@ -8,7 +8,7 @@ import Tracker from "./routes/tracker.route";
 import SignIn from "./Components/SignIn";
 import SignUp from "./Components/SignUp";
 import ResourceHub from "./routes/ResourceHub.route";
-// import Community from "./routes/community.route";
+import Community from "./routes/community.route";
 // import Aimentor from "./routes/aimentor.route";
 
 function App() {
@@ -23,8 +23,8 @@ function App() {
         <Route path="/planner" element={<Planner />} />
         <Route path="/tracker" element={<Tracker />} />
         <Route path="/resourcehub" element={<ResourceHub />} />
-        {/* <Route path="/community" element={<Community />} />
-        <Route path="/aimentor" element={<Aimentor />} /> */} 
+        <Route path="/community" element={<Community />} />
+        {/* <Route path="/aimentor" element={<Aimentor />} /> */} 
       </Route>
     </Routes>
  

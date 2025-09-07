@@ -1,56 +1,56 @@
 import React, { useState, useEffect } from 'react';
 import plannermessage from '../assets/plannermessage.svg';
 import { FiSearch } from 'react-icons/fi';
-import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
-import roadmaps from '../datasets/roadmaps';
 import MilestoneModal from '../Components/MilestonePlannerModal';
 import ViewRoadmapModal from '../Components/ViewRoadmaps/ViewRoadmaps.jsx';
 import SearchMilestonePlanner from '../Components/SearchMilestonePlanner.jsx';
 import viewicon from '../assets/viewicon.svg'
+import { useAuth } from '../Components/Contexts/authContext.jsx';
+import { useUserRoadmaps } from '../Components/Contexts/useRoadmaps.js';
+import axios from 'axios';
 
 const Planner = () => {
+    const { authUser } = useAuth();
+    const userId = authUser?.id;
+    const { data: userRoadmaps, isLoading } = useUserRoadmaps(userId);
     const [MilestonePlannermodalOpen, setMilestonePlannermodalOpen] = useState(false);
-    const [userRoadmaps, setUserRoadmaps] = useState([]);
     const [viewModalOpen, setViewModalOpen] = useState(false);
-    const [selectedRoadmap, setSelectedRoadmap] = useState(null);
     const [search, setSearch] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [searchModalOpen, setSearchModalOpen] = useState(false);
     const [searchSelectedRoadmap, setSearchSelectedRoadmap] = useState(null);
+    const [globalRoadmaps, setGlobalRoadmaps] = useState([]);
+    const [isLoadingGlobal, setIsLoadingGlobal] = useState(false);
 
+    // Fetch global roadmaps on component mount
     useEffect(() => {
-    
-        const stored = JSON.parse(localStorage.getItem('userRoadmaps') || '[]');
-        setUserRoadmaps(stored);
-    }, [MilestonePlannermodalOpen]);
+        fetchGlobalRoadmaps();
+    }, []);
+
+    const fetchGlobalRoadmaps = async () => {
+        try {
+            setIsLoadingGlobal(true);
+            const response = await axios.get('http://localhost:8000/api/roadmaps/globalRoadmaps');
+            if (response.status === 200) {
+                setGlobalRoadmaps(response.data);
+            }
+        } catch (error) {
+            console.error('Error fetching global roadmaps:', error);
+            setGlobalRoadmaps([]);
+        } finally {
+            setIsLoadingGlobal(false);
+        }
+    };
 
     const openModal = () => setMilestonePlannermodalOpen(true);
     const closeModal = () => setMilestonePlannermodalOpen(false);
 
-    const openViewModal = (roadmap) => {
-        setSelectedRoadmap(roadmap);
+    const openViewModal = () => {
         setViewModalOpen(true);
     };
     const closeViewModal = () => {
-        setSelectedRoadmap(null);
         setViewModalOpen(false);
     };
-
-    const handleDeleteRoadmap = (roadmapToDelete) => {
-        setUserRoadmaps(prev =>
-            prev.filter(rm =>
-                !(
-                    rm.skill === roadmapToDelete.skill &&
-                    rm.milestones.length === roadmapToDelete.milestones.length &&
-                    rm.milestones.every((m, i) => {
-                        const rmm = roadmapToDelete.milestones[i];
-                        return m.name === rmm.name && m.deadline === rmm.deadline && m.task === rmm.task && m.notes === rmm.notes;
-                    })
-                )
-            )
-        );
-    };
-
 
     const handleSearchChange = (e) => {
         const value = e.target.value;
@@ -59,8 +59,9 @@ const Planner = () => {
             setSearchResults([]);
             return;
         }
-        const results = roadmaps.filter(rm =>
-            rm.skill.toLowerCase().includes(value.toLowerCase())
+        // Search in global roadmaps instead of hardcoded data
+        const results = globalRoadmaps.filter(rm =>
+            rm.name.toLowerCase().includes(value.toLowerCase())
         );
         setSearchResults(results);
     };
@@ -81,11 +82,9 @@ const Planner = () => {
             {/* Rendering MileStonePlanner modal when modalOpen is true */}
             {MilestonePlannermodalOpen && <MilestoneModal onClose={closeModal} />}
             {/* Rendering ViewRoadmapModal when viewModalOpen is true */}
-            {viewModalOpen && selectedRoadmap && (
+            {viewModalOpen && (
                 <ViewRoadmapModal
-                    roadmap={selectedRoadmap}
                     onClose={closeViewModal}
-                    onDelete={handleDeleteRoadmap}
                 />
             )}
             {/* Rendering SearchMilestonePlanner modal when searchModalOpen is true */}
@@ -111,19 +110,32 @@ const Planner = () => {
                         </div>
                         {searchResults.length > 0 && (
                             <div className="flex flex-col items-start gap-6 py-4 px-2 absolute left-12 top-12 bg-white border border-gray-200 rounded shadow w-[80%] z-20">
-                                {searchResults.map((rm, idx) => (
-                                    <div
-                                        key={idx}
-                                        className="text-gray-500 text-lg font-poppins hover:bg-blue-100 transition-colors duration-200 px-2 py-1 rounded"
-                                        onClick={() => handleSkillClick(rm)}
-                                    >
-                                        {rm.skill}
+                                {isLoadingGlobal ? (
+                                    <div className="text-gray-500 text-lg font-poppins px-2 py-1">
+                                        Loading roadmaps...
                                     </div>
-                                ))}
+                                ) : searchResults.length === 0 ? (
+                                    <div className="text-gray-500 text-lg font-poppins px-2 py-1">
+                                        No roadmaps found
+                                    </div>
+                                ) : (
+                                    searchResults.map((rm, idx) => (
+                                        <div
+                                            key={rm.global_rm_id || idx}
+                                            className="text-gray-500 text-lg font-poppins hover:bg-blue-100 transition-colors duration-200 px-2 py-1 rounded cursor-pointer"
+                                            onClick={() => handleSkillClick(rm)}
+                                        >
+                                            {rm.name}
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         )}
                     </div>
                     <div className="border-b-2 border-black w-full mb-6" />
+                     <p className="text-lg font-poppins text-gray-600 italic">
+                        Check out our curated roadmaps for different skills here, or create your own roadmap below!
+                    </p>
                 </div>
                 
                 <div className="bg-white rounded-xl shadow w-[85vw] h-95 flex flex-col px-10 py-8 mr-5">
@@ -146,16 +158,18 @@ const Planner = () => {
                         <span className="font-extrabold text-xl font-poppins">VIEW YOUR ROADMAPS</span>
                     </div>
                     <div className="flex gap-8 w-full flex-wrap">
-                        {userRoadmaps.length === 0 ? (
+                        {isLoading ? (
+                            <span className="text-gray-400 font-poppins">Loading roadmaps...</span>
+                        ) : !userRoadmaps || userRoadmaps.length === 0 ? (
                             <span className="text-gray-400 font-poppins">No roadmaps yet. Make your first roadmap!</span>
                         ) : (
                             userRoadmaps.map((rm, idx) => (
                                 <button
-                                    key={idx}
+                                    key={rm.roadmap_id || idx}
                                     className="flex-1 h-20 rounded-xl font-extrabold text-lg font-poppins bg-gradient-to-r from-blue-300 to-blue-100 flex items-center justify-center mb-4 min-w-[180px]"
-                                    onClick={() => openViewModal(rm)}
+                                    onClick={openViewModal}
                                 >
-                                    {rm.skill}
+                                    {rm.name}
                                 </button>
                             ))
                         )}

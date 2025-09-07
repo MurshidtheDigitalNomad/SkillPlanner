@@ -1,8 +1,8 @@
-const {fetchGlobalRoadmaps, fetchGlobalMilestones, fetchResourcesByRoadmap, getResourcesByUserRoadmap, fetchResourcesByMilestone, fetchmilestonesByRoadmap, getOrCreateMilestone, getOrCreateRoadmap, addResource} = require('../../models/resources.model');
+const {fetchGlobalRoadmapsByResources, fetchGlobalMilestonesByResources, fetchResourcesByRoadmap, getResourcesByUserRoadmap, fetchResourcesByMilestone, fetchmilestonesByRoadmap, getOrCreateMilestone, getOrCreateRoadmap, addResource} = require('../../models/resources.model');
 
-const getGlobalroadmaps = async (req, res) => {
+const getGlobalroadmapsByResources = async (req, res) => {
     try {
-        const roadmaps_names = await fetchGlobalRoadmaps();
+        const roadmaps_names = await fetchGlobalRoadmapsByResources();
         console.log('Fetched roadmaps:', roadmaps_names);
         
         if (!roadmaps_names || roadmaps_names.length === 0) {
@@ -22,9 +22,9 @@ const getGlobalroadmaps = async (req, res) => {
     }
 };
 
-const getGlobalMilestones = async (req, res) => {
+const getGlobalMilestonesByResources = async (req, res) => {
     try {
-        const milestonegoals = await fetchGlobalMilestones();
+        const milestonegoals = await fetchGlobalMilestonesByResources();
         console.log('Fetched milestones:', milestonegoals);    
         res.status(200).json(milestonegoals);
     } catch (error) {
@@ -132,8 +132,8 @@ async function AddResourcebyUser(req, res) {
   
 
 module.exports = {
-    getGlobalroadmaps, 
-    getGlobalMilestones,
+    getGlobalroadmapsByResources, 
+    getGlobalMilestonesByResources,
     getResourcesByRoadmap,
     getResourcesByMilestone,
     getMilestonesByRoadmap,

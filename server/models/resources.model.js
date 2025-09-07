@@ -1,6 +1,5 @@
 const pool = require('../db')
 
-
 const generateNewResourceID = async () => {
     const query = `SELECT resource_id FROM resources ORDER BY resource_id DESC LIMIT 1`;
     const result = await pool.query(query);
@@ -31,6 +30,21 @@ const generateNewGlobalMilestoneID = async () => {
     return `GMS${String(newNumber).padStart(3, '0')}`;
 };
 
+const generateNewGlobalTaskID = async () => {
+    const query = `SELECT global_task_id FROM global_tasks ORDER BY global_task_id DESC LIMIT 1`;
+    const result = await pool.query(query);
+
+    if (result.rows.length === 0) {
+        return 'GT001';
+    }
+
+    const lastID = result.rows[0].global_task_id;
+    const lastNumber = parseInt(lastID.replace('GT', ''), 10);
+    const newNumber = lastNumber + 1;
+
+    return `GT${String(newNumber).padStart(3, '0')}`;
+};
+
 const generateNewGlobalRoadmapID = async () => {
     const query = `SELECT gloabl_rm_id FROM global_roadmaps ORDER BY global_rm_id DESC LIMIT 1`;
     const result = await pool.query(query);
@@ -47,8 +61,7 @@ const generateNewGlobalRoadmapID = async () => {
 };
 
 
-
-const fetchGlobalRoadmaps = async () => {
+const fetchGlobalRoadmapsByResources = async () => {
     // Get unique roadmaps for dropdown
     const query = `SELECT DISTINCT gr.global_RM_id, gr.name
     FROM global_roadmaps gr
@@ -62,11 +75,7 @@ const fetchGlobalRoadmaps = async () => {
     return result.rows;
 };
 
-module.exports = {
-    fetchGlobalRoadmaps
-};
-
-const fetchGlobalMilestones = async () => {
+const fetchGlobalMilestonesByResources = async () => {
     // Get unique milestones for dropdown
     const query = `SELECT DISTINCT gms.global_MS_id, gms.name
     FROM global_milestones gms
@@ -101,12 +110,59 @@ const fetchResourcesByMilestone = async (milestoneId) => {
 };
 
 const fetchmilestonesByRoadmap = async (roadmapId) =>{
-    const query = `SELECT global_ms_id, name FROM global_milestones
-    WHERE global_rm_id = $1
-    `
-
+    // Fetch milestones with their actual tasks from global_tasks table
+    const query = `
+        SELECT 
+            gm.global_ms_id, 
+            gm.name,
+            gt.global_task_id,
+            gt.description as task_name,
+            gt.task_no
+        FROM global_milestones gm
+        LEFT JOIN global_tasks gt ON gm.global_ms_id = gt.global_ms_id
+        WHERE gm.global_rm_id = $1
+        ORDER BY gm.name ASC, gt.task_no ASC
+    `;
+    
     const result = await pool.query(query, [roadmapId]);
-    return result.rows;
+    
+    // Group tasks by milestone
+    const milestonesMap = new Map();
+    
+    result.rows.forEach(row => {
+        const milestoneId = row.global_ms_id;
+        if (!milestonesMap.has(milestoneId)) {
+            milestonesMap.set(milestoneId, {
+                global_ms_id: milestoneId,
+                name: row.name,
+                position: milestonesMap.size + 1,
+                notes: '',
+                tasks: []
+            });
+        }
+        
+        if (row.global_task_id) {
+            milestonesMap.get(milestoneId).tasks.push({
+                name: row.task_name
+            });
+        }
+    });
+    
+    // Convert map to array
+    const milestonesWithTasks = Array.from(milestonesMap.values());
+    
+    // If no tasks found, add default tasks
+    milestonesWithTasks.forEach(milestone => {
+        if (milestone.tasks.length === 0) {
+            milestone.tasks = [
+                { name: `Learn the basics of ${milestone.name}` },
+                { name: `Practice ${milestone.name} concepts` },
+                { name: `Build a project using ${milestone.name}` }
+            ];
+        }
+    });
+    
+    return milestonesWithTasks;
 }
 
 async function getOrCreateRoadmap(newRoadmap, roadmapId) {
@@ -121,7 +177,7 @@ async function getOrCreateRoadmap(newRoadmap, roadmapId) {
     if (existing.rows.length > 0) return existing.rows[0].global_rm_id;
   
     // Insert new roadmap
-    const newGlobalRoadmapID= generateNewGlobalRoadmapID()
+    const newGlobalRoadmapID= await generateNewGlobalRoadmapID()
     const inserted = await pool.query(
       `INSERT INTO global_roadmaps (name, global_rm_id) VALUES ($1, $2) RETURNING global_rm_id`,
       [newRoadmap, newGlobalRoadmapID]
@@ -143,7 +199,7 @@ async function getOrCreateMilestone(newMilestone, milestoneId, roadmapId) {
     if (existing.rows.length > 0) return existing.rows[0].global_ms_id;
   
     // Insert new milestone
-    const newGlobalMilestoneID= generateNewGlobalMilestoneID()
+    const newGlobalMilestoneID= await generateNewGlobalMilestoneID()
     const inserted = await pool.query(
       `INSERT INTO global_milestones (name, global_rm_id, global_ms_id) VALUES ($1, $2, $3) RETURNING global_ms_id`,
       [newMilestone, roadmapId, newGlobalMilestoneID]
@@ -155,7 +211,7 @@ async function getOrCreateMilestone(newMilestone, milestoneId, roadmapId) {
   // Function to add resource and link to roadmap & milestone
 async function addResource({ title, resourceType, resourceURL, userID, roadmapId, milestoneId }) {
     // Insert resource
-    const resourceid = generateNewResourceID();
+    const resourceid = await generateNewResourceID();
     const resourceInsert = await pool.query(
       `INSERT INTO resources (resource_id, title, type, url, added_by, global_ms_id, global_rm_id) 
       VALUES ($1, $2, $3, $4, $5, $6, $7) 
@@ -187,13 +243,14 @@ async function getResourcesByUserRoadmap(roadmapId) {
   
 
 module.exports = {
-    fetchGlobalRoadmaps, 
-    fetchGlobalMilestones,
+    fetchGlobalRoadmapsByResources, 
+    fetchGlobalMilestonesByResources,
     fetchResourcesByRoadmap,
     fetchResourcesByMilestone,
     fetchmilestonesByRoadmap,
     getOrCreateMilestone,
     getOrCreateRoadmap,
     addResource,
-    getResourcesByUserRoadmap
+    getResourcesByUserRoadmap,
+    generateNewGlobalTaskID
 };

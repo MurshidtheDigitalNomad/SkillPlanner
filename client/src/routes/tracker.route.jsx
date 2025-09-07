@@ -8,14 +8,18 @@ import trackermessage from '../assets/trackermessage.svg'
 import updateprogressicon from '../assets/updateprogress.svg'
 import RoadmapStatus from '../Components/RoadmapStatus';
 import MilestoneStatus from '../Components/MilestoneStatus';
+import { useAuth } from '../Components/Contexts/authContext.jsx';
+import { useUserRoadmaps, useUserProgress } from '../Components/Contexts/useRoadmaps.js';
 
 const Tracker = () => {
-    const [userRoadmaps, setUserRoadmaps] = useState([]);
-    const [modalOpen, setModalOpen] = useState(false);
-    const [selectedSkill, setSelectedSkill] = useState(null);
+    const { authUser } = useAuth();
+    const userId = authUser?.id; //ensure userID is not null
+    const { data: userRoadmaps, isLoading } = useUserRoadmaps(userId); //fetching queries
+    const { data: userProgress } = useUserProgress(userId);
+    const [modalOpen, setModalOpen] = useState(false);  //state for our modals
+    const [selectedRoadmap, setSelectedRoadmap] = useState(null); //state for our selected roadmap
     const [addTaskModalOpen, setAddTaskModalOpen] = useState(false);
-    const [progressUpdated, setProgressUpdated] = useState(0);
-
+    const [progressUpdated, setProgressUpdated] = useState(0); //state for our progress 
    
     const today = new Date();
     const monthNames = [
@@ -24,18 +28,14 @@ const Tracker = () => {
     ];
     const formattedDate = `${monthNames[today.getMonth()]} ${today.getDate()}, ${today.getFullYear()}`;
 
-    useEffect(() => {
-        const stored = JSON.parse(localStorage.getItem('userRoadmaps') || '[]');
-        setUserRoadmaps(stored);
-    }, []);
-
-    const openModal = (skill) => {
-        setSelectedSkill(skill);
+    //opening and closing our modals
+    const openModal = (roadmap) => {
+        setSelectedRoadmap(roadmap);
         setModalOpen(true);
     };
     const closeModal = () => {
         setModalOpen(false);
-        setSelectedSkill(null);
+        setSelectedRoadmap(null);
     };
 
     //keeping displayedTasks and its logic
@@ -43,8 +43,7 @@ const Tracker = () => {
     const [checked, setChecked] = useState({});
     const handleCheck = (key) => setChecked(prev => ({ ...prev, [key]: !prev[key] }));
 
-    //deleting tasks from the displayed random list (not from localStorage)
-    
+    //deleting tasks from the displayed random list
     const handleDeleteTask = (key) => {
         setDisplayedTasks(prev => prev.filter(task => task.key !== key));
     };
@@ -63,11 +62,11 @@ const Tracker = () => {
     return (
         <div className="flex justify-center items-center">
             
-            {modalOpen && (
+            {modalOpen && selectedRoadmap && (
                 <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
                     <div className="bg-white rounded-xl shadow-lg p-8 relative min-w-[350px] min-h-[200px]">
                         <button onClick={closeModal} className="absolute top-2 right-4 text-2xl font-bold">&times;</button>
-                        <UpdateRoadmapProgress roadmapSkill={selectedSkill} onProgressUpdate={() => setProgressUpdated(p => p + 1)} />
+                        <UpdateRoadmapProgress roadmap={selectedRoadmap} onProgressUpdate={() => setProgressUpdated(p => p + 1)} />
                     </div>
                 </div>
             )}
@@ -85,16 +84,18 @@ const Tracker = () => {
                         <span className="font-rubik text-xl font-extrabold ml-2 mb-4">UPDATE YOUR PROGRESS</span>
                     </div>
                     <div className="updateroadmaps flex gap-3 flex-wrap">
-                        {userRoadmaps.length === 0 ? (
+                        {isLoading ? (
+                            <div className="text-gray-400 font-poppins">Loading roadmaps...</div>
+                        ) : !userRoadmaps || userRoadmaps.length === 0 ? (
                             <div className="text-gray-400 font-poppins">No roadmaps yet.</div>
                         ) : (
                             userRoadmaps.map((rm, idx) => (
                                 <button
-                                    key={idx}
+                                    key={rm.roadmap_id || idx}
                                     className="flex-1 h-16 rounded-l text-xl font-extrabold font-rubik bg-gradient-to-r from-blue-300 to-blue-100 flex items-center justify-center min-w-[120px] px-4"
-                                    onClick={() => openModal(rm.skill)}
+                                    onClick={() => openModal(rm)}
                                 >
-                                    {rm.skill}
+                                    {rm.name}
                                 </button>
                             ))
                         )}
@@ -159,10 +160,10 @@ const Tracker = () => {
                     </div>
                     </div>
                     <div className="flex-1">
-                        <RoadmapStatus progressUpdated={progressUpdated} />
+                        <RoadmapStatus userProgress={userProgress} progressUpdated={progressUpdated} />
                     </div>
                     <div className="flex-1 border-2 border-black rounded-2xl mt-2">
-                        <MilestoneStatus />
+                        <MilestoneStatus userProgress={userProgress} />
                     </div>
                 </div>
             </div>

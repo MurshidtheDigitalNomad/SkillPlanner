@@ -22,7 +22,7 @@ const Sidebar = () => {
                 <div className="w-12 h-12 "><Link to='/planner'><img src={planner}/></Link></div> 
                 <div className="w-12 h-12 "><Link to="/tracker"><img src={tracker}/></Link></div> 
                 <div className="w-12 h-12 "><Link to='/resourcehub'><button><img src={resourcehub}/></button></Link></div> 
-                <div className="w-12 h-12 "><button><img src={community}/></button></div> 
+                <div className="w-12 h-12 "><Link to='/community'><button><img src={community}/></button></Link></div> 
                 <div className="w-12 h-12 "><button><img src={aimentor}/></button></div> 
             </div>
         </div>
