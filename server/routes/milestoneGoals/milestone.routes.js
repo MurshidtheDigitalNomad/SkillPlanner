@@ -1,10 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
-const { updateMilestoneStatusController } = require('./milestone.controller');
-const { getMilestonesByRoadmap } = require('../resources/resources.controller');
+const { updateMilestoneStatusController, getGlobalMilestonesByRoadmap } = require('./milestone.controller');
 
 router.put('/:milestoneId/status', updateMilestoneStatusController);
-router.get('/:roadmapId', getMilestonesByRoadmap)
+router.get('/:roadmapId', getGlobalMilestonesByRoadmap);
 
 module.exports = router;

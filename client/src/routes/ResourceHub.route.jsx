@@ -12,7 +12,7 @@ const ResourceHub = () => {
                 <img src={title} alt='title' className='h-16'/>
                 <img src={welcomemessage} alt='welcome message' className='h-14'/>
             </div> 
-            <div className=''>
+            <div className='flex flex-col gap-4'>
                 <ResourceLibrary />
                 <RecommendedResources />
                 <AddResources />

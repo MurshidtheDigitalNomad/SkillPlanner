@@ -43,20 +43,69 @@ const Tracker = () => {
     const [checked, setChecked] = useState({});
     const handleCheck = (key) => setChecked(prev => ({ ...prev, [key]: !prev[key] }));
 
+    // Load temporary tasks from localStorage on component mount
+    useEffect(() => {
+        const loadTemporaryTasks = () => {
+            const storedTasks = JSON.parse(localStorage.getItem('temporaryTasks') || '[]');
+            const formattedTasks = storedTasks.map(task => ({
+                skill: task.roadmapName,
+                label: task.task,
+                key: `${task.roadmapName}-${task.task}-${task.id}`,
+                id: task.id,
+                roadmapId: task.roadmapId,
+                completed: task.completed
+            }));
+            setDisplayedTasks(formattedTasks);
+            
+            // Set checked state for completed tasks
+            const checkedState = {};
+            formattedTasks.forEach(task => {
+                if (task.completed) {
+                    checkedState[task.key] = true;
+                }
+            });
+            setChecked(checkedState);
+        };
+
+        loadTemporaryTasks();
+    }, []);
+
     //deleting tasks from the displayed random list
     const handleDeleteTask = (key) => {
+        // Find the task to delete
+        const taskToDelete = displayedTasks.find(task => task.key === key);
+        
+        if (taskToDelete) {
+            // Remove from localStorage
+            const storedTasks = JSON.parse(localStorage.getItem('temporaryTasks') || '[]');
+            const updatedStoredTasks = storedTasks.filter(task => task.id !== taskToDelete.id);
+            localStorage.setItem('temporaryTasks', JSON.stringify(updatedStoredTasks));
+        }
+        
+        // Remove from displayed tasks
         setDisplayedTasks(prev => prev.filter(task => task.key !== key));
+        
+        // Remove from checked state
+        setChecked(prev => {
+            const newChecked = { ...prev };
+            delete newChecked[key];
+            return newChecked;
+        });
     };
 
     const handleAddTask = (task) => {
+        // Format the task to match the expected structure
+        const formattedTask = {
+            skill: task.roadmapName,
+            label: task.task,
+            key: `${task.roadmapName}-${task.task}-${task.id}`,
+            id: task.id,
+            roadmapId: task.roadmapId,
+            completed: task.completed
+        };
+        
         // Adding new tasks to the Task list
-        setDisplayedTasks(prev => [
-            ...prev,
-            {
-                ...task,
-                key: `${task.skill}-${task.label}-${Date.now()}`
-            }
-        ]);
+        setDisplayedTasks(prev => [...prev, formattedTask]);
     };
 
     return (

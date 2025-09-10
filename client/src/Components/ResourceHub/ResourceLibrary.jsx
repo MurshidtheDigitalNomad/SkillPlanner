@@ -2,9 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import titleicon from '../../assets/RHlibrary-icon.svg';
 
-
-const options3 = ["Resource Type", "Youtube Videos And Playlists", "PDF", "Research Paper", "External Tutorials"];
-
 const Dropdown = ({ options, width, onSelect, label, isObject = false }) => {
     const [open, setOpen] = useState(false);
     const [selected, setSelected] = useState(isObject ? (options[0]?.name || label) : (options[0] || label));
@@ -81,21 +78,29 @@ const ResourceLibrary = () => {
         fetchRoadmaps();
     }, []);
 
-        useEffect(() => {
+    // Fetch milestones when a roadmap is selected
+    useEffect(() => {
         const fetchMileStones = async () => {
-            try {
-                const response = await axios.get('http://localhost:8000/api/resources/global_milestones')
-                if (response.status === 200) {
-                    // Store the full milestone objects to preserve IDs
-                    setMilestoneOptions(response.data);
+            if (selectedRoadmap && selectedRoadmap.global_rm_id && selectedRoadmap.global_rm_id !== 'loading') {
+                try {
+                    const response = await axios.get(`http://localhost:8000/api/resources/global_milestones/${selectedRoadmap.global_rm_id}`)
+                    if (response.status === 200) {
+                        // Store the full milestone objects to preserve IDs
+                        setMilestoneOptions(response.data);
+                    }
+                } catch (err) {
+                    console.log('Error fetching milestones:', err);
+                    setMilestoneOptions([{name: 'No milestones found' }]);
                 }
-            } catch (err) {
-                console.log('Error fetching milestones:', err);
-                setMilestoneOptions([{name: 'Milestone Goals' }]);
+            } else {
+                // Clear milestones if no roadmap is selected
+                setMilestoneOptions([{name: 'Select a roadmap first' }]);
             }
+            // Clear selected milestone when roadmap changes
+            setSelectedMilestoneGoal('');
         }
         fetchMileStones();
-    }, []);
+    }, [selectedRoadmap]);
 
     // Fetch resources when roadmap is selected
     useEffect(() => {
@@ -146,13 +151,13 @@ const ResourceLibrary = () => {
     }, [selectedMileStoneGoal]);
 
     return (
-        <div className="bg-white h-[60vh] p-8 rounded-2xl shadow-md flex flex-col items-start mb-2 w-full">
+        <div className="bg-white min-h-[70vh] p-8 rounded-2xl shadow-md flex flex-col items-start mb-4 gap-4 w-full">
             <div className='title flex items-center mb-4'>
                 <img src={titleicon} alt='title icon' className='h-8'/>
                 <h2 className='font-rubik text-xl font-extrabold ml-2 mb-2'>ACCESS ALL RESOURCES HERE</h2>
             </div>
 
-            <div className="searchbars flex gap-6 mb-6">
+            <div className="searchbars flex gap-6 mb-2">
                 <Dropdown
                     label="Roadmap Resources"
                     options={roadmapOptions.length ? roadmapOptions : [{ global_RM_id: 'loading', name: 'Loading Roadmap Options...' }]}
@@ -167,97 +172,105 @@ const ResourceLibrary = () => {
                     onSelect={setSelectedMilestoneGoal}
                     isObject={true}
                  />
-                <Dropdown label="Resource Type" options={options3} width='w-[10vw]' />
-                <button 
-                    className='bg-[#2d39e8] hover:bg-blue-800 text-white font-rubik text-base font-bold py-2 px-4 rounded'
-                    onClick={() => {
-                        // The search is already triggered by useEffect when selections change
-                    }}
-                >
-                    Search
-                </button>
             </div>
 
-            <div className="search-results flex-1 overflow-x-auto scrollbar:hidden">
+            <div className="search-results flex-1">
                 {(selectedRoadmap?.global_rm_id !== 'default' || selectedMileStoneGoal?.global_ms_id !== 'default') && (
-                    <div className="mt-4 min-w-max">
-                    <h3 className="text-lg font-bold font-poppins mb-3">
-                        Resources for:
-                        {selectedRoadmap?.global_rm_id !== 'default' && (
-                        <span className="text-blue-600"> {selectedRoadmap.name} </span>
-                        )}
-                        {selectedMileStoneGoal?.global_ms_id !== 'default' && (
-                        <span className="text-blue-600">
-                            {selectedRoadmap?.global_rm_id !== 'default' && ' & '}
-                            {selectedMileStoneGoal.name}
-                        </span>
-                        )}
+                    <div className="mt-1">
+                    <h3 className="text-lg font-poppins text-gray-600 italic mb-4">
+                        Check out some amazing resources to help you in your learning journey!
                     </h3>
 
-                    {/* Combined Horizontal Scroll */}
-                    <div className="flex gap-4 overflow-x-auto pb-2">
-                        {/* Roadmap Resources */}
-                        {selectedRoadmap?.global_rm_id !== 'default' &&
-                        roadmapResources.map((resource) => (
-                            <div
-                            key={`rm-${resource.resource_id}`}
-                            className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 min-w-[300px] max-w-[350px] flex-shrink-0"
-                            >
-                                <h4 className="font-semibold text-lg mb-2">{resource.title || 'Untitled Resource'}</h4>
-                                {resource.description && (
-                                    <p className="text-gray-600 mb-2 text-sm line-clamp-3">{resource.description}</p>
-                                )}
-                                <a
-                                    href={resource.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-blue-600 hover:text-blue-800 underline break-all text-sm"
+                    {/* Grid Layout for Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        {(() => {
+                            // Combine and deduplicate resources
+                            const allResources = [];
+                            const seenResourceIds = new Set();
+                            
+                            // Add roadmap resources if roadmap is selected
+                            if (selectedRoadmap?.global_rm_id !== 'default') {
+                                roadmapResources.forEach(resource => {
+                                    if (!seenResourceIds.has(resource.resource_id)) {
+                                        allResources.push(resource);
+                                        seenResourceIds.add(resource.resource_id);
+                                    }
+                                });
+                            }
+                            
+                            // Add milestone resources if milestone is selected (skip duplicates)
+                            if (selectedMileStoneGoal?.global_ms_id !== 'default') {
+                                milestoneResources.forEach(resource => {
+                                    if (!seenResourceIds.has(resource.resource_id)) {
+                                        allResources.push(resource);
+                                        seenResourceIds.add(resource.resource_id);
+                                    }
+                                });
+                            }
+                            
+                            return allResources.map((resource) => (
+                                <div
+                                key={resource.resource_id}
+                                style={{ background: 'linear-gradient(to right, #85b4fa, #e8f2f8)' }}
+                                className="w-[20vw] rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
+                                onClick={() => window.open(resource.url, '_blank')}
                                 >
-                                    {resource.url}
-                                </a>
-                                {resource.resource_type && (
-                                    <span className="ml-2 px-2 py-1 bg-gray-200 rounded text-sm">{resource.resource_type}</span>
-                                )}
-                                <button
-                                className="mt-2 px-4 py-1 ml-2 rounded bg-gray-200 text-gray-700 hover:bg-blue-500 hover:text-white transition-colors duration-200"
-                                onClick={(e) => e.currentTarget.classList.toggle('bg-red-500')}
-                                >
-                                    SAVE
-                                </button>
-                            </div>
-                        ))}
+                                    {/* Thumbnail/Icon Section */}
+                                    <div className="bg-white rounded-xl mb-3 h-28 flex items-center justify-center relative overflow-hidden">
+                                        {resource.type === 'youtube' ? (
+                                            <div className="bg-gray-800 w-full h-full flex items-center justify-center">
+                                                <div className="bg-white rounded-full p-3">
+                                                    <svg className="w-8 h-8 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path d="M8 5v14l11-7z"/>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        ) : resource.type === 'Article' ? (
+                                            <div className="bg-white w-full h-full flex items-center justify-center p-4">
+                                                <div className="text-center">
+                                                    <svg className="w-12 h-12 text-gray-600 mx-auto mb-2" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                                                    </svg>
+                                                    <div className="text-xs text-gray-500 font-semibold">ARTICLE</div>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="bg-gray-100 w-full h-full flex items-center justify-center">
+                                                <svg className="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                                                </svg>
+                                            </div>
+                                        )}
+                                    </div>
 
-                        {/* Milestone Resources */}
-                        {selectedMileStoneGoal?.global_ms_id !== 'default' &&
-                        milestoneResources.map((resource) => (
-                            <div
-                            key={`ms-${resource.resource_id}`}
-                            className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 min-w-[300px] max-w-[350px] flex-shrink-0"
-                                >
-                                <h4 className="font-semibold text-lg mb-2">{resource.title || 'Untitled Resource'}</h4>
-                                {resource.description && (
-                                    <p className="text-gray-600 mb-2 text-sm line-clamp-3">{resource.description}</p>
-                                )}
-                                <a
-                                    href={resource.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-blue-600 hover:text-blue-800 underline break-all text-sm"
-                                >
-                                    {resource.url}
-                                </a>
-                                {resource.resource_type && (
-                                    <span className="ml-2 px-2 py-1 bg-gray-200 rounded text-sm">{resource.resource_type}</span>
-                                )}
-                                <button
-                                className="mt-2 px-4 py-1 ml-2 rounded bg-gray-200 text-gray-700 hover:bg-blue-500 hover:text-white transition-colors duration-200"
-                                onClick={(e) => e.currentTarget.classList.toggle('bg-red-500')}
-                                >
-                                    SAVE
-                                </button>                       
-                            </div>
+                                    {/* Resource Info */}
+                                    <div className="space-y-1">
+                                        <div className="text-base font-semibold text-gray-700">
+                                            <span className="font-bold">Type:</span> {resource.type || 'Resource'}
+                                        </div>
+                                        <div className="text-base font-semibold text-gray-700">
+                                            <span className="font-bold">Skill:</span> {selectedRoadmap?.name || 'General'}
+                                        </div>
+                                        <div className="text-base font-semibold text-gray-700">
+                                            <span className="font-bold">Milestone Goal:</span> {resource.milestone_name || 'General'}
+                                        </div>
+                                    </div>
 
-                        ))}
+                                    {/* Save Button */}
+                                    <button
+                                        className="w-full mt-3 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-3 rounded-lg transition-colors duration-200 text-sm"
+                                        onClick={(e) => {
+                                            e.stopPropagation(); // Prevent card click
+                                            e.currentTarget.classList.toggle('bg-green-600');
+                                            e.currentTarget.textContent = e.currentTarget.textContent === 'SAVE' ? 'SAVED' : 'SAVE';
+                                        }}
+                                    >
+                                        SAVE
+                                    </button>
+
+                                </div>
+                            ));
+                        })()}
                     </div>
 
                     {/* No results case */}

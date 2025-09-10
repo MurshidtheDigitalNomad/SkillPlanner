@@ -23,7 +23,7 @@ const Navbar = () => {
             <img src={titlename} alt="skillplanner-title" className="h-15 w-15" />
             </Link>
             <div className="flex items-center gap-4">
-                <img src={notification} alt="notification-bell" className="h-10" />
+                
                 <div className="profilebox flex items-center bg-white rounded-xl px-3 py-1 mr-5 shadow">
                     <img src={profileicon} alt="profile-icon" className="h-8 w-8 mr-1" />
                     <button 

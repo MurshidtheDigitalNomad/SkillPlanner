@@ -22,11 +22,28 @@ const getGlobalroadmapsByResources = async (req, res) => {
     }
 };
 
+const getGlobalMilestones = async (req, res) => {
+    try {
+        const { roadmapId } = req.params;
+        if (!roadmapId) {
+            return res.status(400).json({ message: 'Roadmap ID is required' });
+        }
+        const milestones = await fetchGlobalMilestonesByResources(roadmapId);
+        res.json(milestones);
+    } catch (err) {
+        console.error('Error fetching global milestones:', err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 const getGlobalMilestonesByResources = async (req, res) => {
     try {
-        const milestonegoals = await fetchGlobalMilestonesByResources();
-        console.log('Fetched milestones:', milestonegoals);    
-        res.status(200).json(milestonegoals);
+        // This endpoint should not be used anymore - milestones should be fetched by roadmap
+        // Return empty array or error message
+        res.status(400).json({ 
+            error: 'This endpoint is deprecated. Use /global_milestones/:roadmapId instead',
+            message: 'Please select a roadmap first to fetch its milestones'
+        });
     } catch (error) {
         console.error('Error fetching global milestones:', error);
         res.status(500).json({ 
@@ -134,6 +151,7 @@ async function AddResourcebyUser(req, res) {
 module.exports = {
     getGlobalroadmapsByResources, 
     getGlobalMilestonesByResources,
+    getGlobalMilestones,
     getResourcesByRoadmap,
     getResourcesByMilestone,
     getMilestonesByRoadmap,

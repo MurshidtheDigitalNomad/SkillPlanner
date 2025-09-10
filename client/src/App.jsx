@@ -7,8 +7,10 @@ import Planner from "./routes/planner.route";
 import Tracker from "./routes/tracker.route";
 import SignIn from "./Components/SignIn";
 import SignUp from "./Components/SignUp";
+import ForgotPassword from './Components/ForgotPassword';
 import ResourceHub from "./routes/ResourceHub.route";
 import Community from "./routes/community.route";
+import ResetPassword from "./Components/ResetPassword";
 // import Aimentor from "./routes/aimentor.route";
 
 function App() {
@@ -17,6 +19,8 @@ function App() {
       <Route path="/" element={<HomePage />} />
       <Route path="signin" element={<SignIn />} />
       <Route path="signup" element={<SignUp />} />
+      <Route path="forgot-password" element={<ForgotPassword />} />
+      <Route path="reset-password" element={<ResetPassword />} />
       <Route element={<DashboardLayout />}>
         <Route path="/dashboard" element={<Dashboard />} />
        

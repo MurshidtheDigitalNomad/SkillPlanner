@@ -105,7 +105,7 @@ function SignIn() {
             onChange={handleChange}
             className="w-full p-3 font-poppins border border-gray-300 rounded-xl focus:outline-none"
           />
-          <p className="mt-2 font-poppins text-sm">Forget password? <Link to='/reset-password' className="text-[#2d39e8]">Click here to rest your password</Link></p>
+          <p className="mt-2 font-poppins text-sm">Forgot password? <Link to='/forgot-password' className="text-[#2d39e8]">Click here to reset your password</Link></p>
 
           <button 
           className="bg-[#2d39e8] hover:bg-blue-800 text-white font-rubik text-xl font-bold mt-4 py-2 px-4 rounded w-full"

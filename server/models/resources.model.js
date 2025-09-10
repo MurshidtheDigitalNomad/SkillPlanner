@@ -62,37 +62,31 @@ const generateNewGlobalRoadmapID = async () => {
 
 
 const fetchGlobalRoadmapsByResources = async () => {
-    // Get unique roadmaps for dropdown
-    const query = `SELECT DISTINCT gr.global_RM_id, gr.name
-    FROM global_roadmaps gr
-    WHERE EXISTS (
-        SELECT 1 FROM resources r 
-        WHERE r.global_RM_id = gr.global_RM_id
-    )
-    ORDER BY gr.name;`;
+    // Get ALL global roadmaps for dropdown (not just ones with existing resources)
+    const query = `SELECT global_rm_id, name
+    FROM global_roadmaps
+    ORDER BY name;`;
 
     const result = await pool.query(query);
     return result.rows;
 };
 
-const fetchGlobalMilestonesByResources = async () => {
-    // Get unique milestones for dropdown
-    const query = `SELECT DISTINCT gms.global_MS_id, gms.name
-    FROM global_milestones gms
-    WHERE EXISTS (
-        SELECT 1 FROM resources r 
-        WHERE r.global_MS_id = gms.global_MS_id
-    )
-    ORDER BY gms.name;`;
+const fetchGlobalMilestonesByResources = async (roadmapId) => {
+    // Get ALL milestones for a specific roadmap (not just ones with existing resources)
+    const query = `SELECT global_ms_id, name
+    FROM global_milestones
+    WHERE global_rm_id = $1
+    ORDER BY name;`;
 
-    const result = await pool.query(query);
+    const result = await pool.query(query, [roadmapId]);
     return result.rows;
 };
 
 const fetchResourcesByRoadmap = async (roadmapId) => {
-    const query = `SELECT r.resource_id, r.url, r.title, r.description, r.type
+    const query = `SELECT r.resource_id, r.url, r.title, r.description, r.type, gm.name as milestone_name
     FROM resources r
-    WHERE r.global_RM_id = $1
+    LEFT JOIN global_milestones gm ON r.global_ms_id = gm.global_ms_id
+    WHERE r.global_RM_id = $1 and r.status= 'approved'
     ORDER BY r.title;`;
 
     const result = await pool.query(query, [roadmapId]);
@@ -100,9 +94,10 @@ const fetchResourcesByRoadmap = async (roadmapId) => {
 };
 
 const fetchResourcesByMilestone = async (milestoneId) => {
-    const query = `SELECT r.resource_id, r.url, r.title, r.description, r.type
+    const query = `SELECT r.resource_id, r.url, r.title, r.description, r.type, gm.name as milestone_name
     FROM resources r
-    WHERE r.global_MS_id = $1
+    LEFT JOIN global_milestones gm ON r.global_ms_id = gm.global_ms_id
+    WHERE r.global_MS_id = $1 and r.status= 'approved'
     ORDER BY r.title;`;
 
     const result = await pool.query(query, [milestoneId]);

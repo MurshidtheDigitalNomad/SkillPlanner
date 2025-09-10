@@ -285,10 +285,6 @@ const CommunityProfile = ()=>{
                                         <img src={commenticon} alt="Comment" className="w-6 h-6" />
                                         <span className="text-base">Comment ({post.comment_count})</span>
                                     </div>
-                                    <div className="flex items-center space-x-2 text-blue-500 hover:text-blue-600 cursor-pointer">
-                                        <img src={saveicon} alt="Share" className="w-6 h-6" />
-                                        <span className="text-base">Share</span>
-                                    </div>
                                 </div>
                                 
                                 {/* Comments Section */}

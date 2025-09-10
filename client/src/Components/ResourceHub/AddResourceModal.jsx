@@ -32,7 +32,7 @@ const AddResourceModal = ({ onClose }) => {
   useEffect(() => {
     if (roadmapId && roadmapId !== "other") {
       console.log(roadmapId)  
-      axios.get(`http://localhost:8000/api/resources/milestones/${roadmapId}`)
+      axios.get(`http://localhost:8000/api/resources/global_milestones/${roadmapId}`)
         .then(res => setGmilestones(res.data))
         .catch(err => console.error('Error fetching milestones:', err));
     } else {
